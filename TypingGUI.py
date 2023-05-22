@@ -172,7 +172,7 @@ class TypingGUI:
 
         # Make the text entry unalterable and cleared of text
         self.text_entry['state'] = DISABLED
-        self.text_entry.delete('1.0', END)
+        self.text_entry.delete(0, END)
 
         # Place the scoreboard top scores above the UI
         scores = StringVar(value=get_top_scoreboard(5))

@@ -65,6 +65,7 @@ class TypingTest:
 
     def start(self):
         self.GUI.add_words(self.words_to_type)
+        self.GUI.entry_player_name.setvar(self.user_name)
         self.time_start = time.time()
         timeout_counter = 0
         last_update_time = self.time_start
