@@ -1,5 +1,4 @@
-import json
-from tkinter import Tk, Entry, Label, DISABLED, StringVar, Frame
+from tkinter import Tk, Entry, Label, DISABLED, StringVar, Frame, Button, WRITABLE, END
 from tkinter.font import Font
 import json
 
@@ -63,13 +62,21 @@ class TypingGUI:
         self.text_entry.grid(row=4, column=2)
 
         self.new_word_typed = False
-        self.click_stopped = False
 
         # TODO typing input and text checker
         self.words_typed = 0
         self.words_correct = []
         self.words_incorrect = []
-        self._to_continue = True
+        self.to_continue = True
+
+        self.scoreboard_display = None  # Will use this variable later once the game ends
+
+        self.end_button = Button(text="End Game", command=self.end)
+        self.end_button.grid(row=4, column=3)
+
+        # Maybe add resetting functionality later.
+        # self.end_button = Button(text="Reset Game", command=self.reset_screen)
+        # self.end_button.grid(row=5, column=3)
 
         self.window.mainloop()
         # self.gui_loop()
@@ -116,12 +123,12 @@ class TypingGUI:
         self.displayed_wpm = wpm
         self.label_player_wpm.config(text=f"Words Per Minute: {self.displayed_wpm}")
 
-    def gui_loop(self):
-        while self._to_continue:
+    def check_text_input(self):
+        if self.to_continue:
             # While the game is running, collect user input
             word = self.text_entry.get()
             if ' ' not in word:  # Check for spaces in the entry box
-                continue
+                return
             # Check the self.text_entry for a new word (non-space characters followed by a space)
             if len(word.strip()) > 0:
                 self.words_typed += 1
@@ -148,14 +155,23 @@ class TypingGUI:
 
     def end(self):
         """Display the scoreboard GUI above the game UI"""
-        # Make the text entry unalterable
+        # Send the signal to end the game
+        self.to_continue = False
+
+        # Make the text entry unalterable and cleared of text
         self.text_entry['state'] = DISABLED
-        self._to_continue = False
+        self.text_entry.delete('1.0', END)
+
         # Place the scoreboard top scores above the UI
         scores = StringVar(value=get_top_scoreboard(5))
-        scoreboard_display = Label(textvariable=scores)
-        scoreboard_display.grid(row=1, column=2)
+        self.scoreboard_display = Label(self.window, textvariable=scores)
+        self.scoreboard_display.grid(row=1, column=2)
 
-    def reset(self):
-        """TODO Remove scoreboard fields from view and clear text inputs"""
-        pass
+    def reset_screen(self):
+        """Remove scoreboard fields from view and clear text inputs"""
+        [label.destroy() for label in self.word_labels]
+        self.word_labels.clear()
+        self.text_entry['state'] = WRITABLE
+        if self.scoreboard_display is not None:
+            # Destroy the scoreboard display if it exists
+            self.scoreboard_display.destroy()

@@ -41,7 +41,7 @@ class TypingTest:
         self.user_name = "John Smith"  # Default User Name
 
         self.words_generated_per_batch = 18
-        self.words_to_type = self.get_more_words(18)
+        self.words_to_type = self.get_words_from_wordlist(18)
         # When a user gets within a set number of words typed of the word_to_type list, more will be generated
         self.word_batch_threshold = 6
 
@@ -52,7 +52,7 @@ class TypingTest:
 
         self.timeout_seconds = 10
 
-    def get_more_words(self, number_of_words) -> list:
+    def get_words_from_wordlist(self, number_of_words) -> list:
         more_words = []
         for i in range(number_of_words):
             more_words.append(random.choice(self.word_list))
@@ -71,7 +71,7 @@ class TypingTest:
 
         # Main Game Loop
         current_time = time.time()  # add variable here to reduce latency caused in calling the time.time() function
-        while not self.GUI.click_stopped:
+        while self.GUI.to_continue:
             current_time = time.time()
             if timeout_counter >= self.timeout_seconds:
                 # User timed out, so add timeout seconds to starting time to calculate a more accurate duration
@@ -81,6 +81,8 @@ class TypingTest:
             timeout_counter += current_time - last_update_time
             last_update_time = current_time
 
+            self.GUI.check_text_input()
+
             if self.GUI.new_word_typed:
                 self.GUI.reset_new_word_typed()
                 self.words_typed += 1
@@ -89,17 +91,18 @@ class TypingTest:
                 # Reset countdown clock
                 timeout_counter = 0
 
-            # Check if more words are needed after every word_batch_threshold words are typed
+            # Check if more words are needed after every 'word_batch_threshold' words are typed
             if self.words_typed % self.word_batch_threshold == 0:
-                self.GUI.add_words(self.get_more_words(self.words_generated_per_batch))
+                self.GUI.add_words(self.get_words_from_wordlist(self.words_generated_per_batch))
 
         self.time_lasted = current_time - self.time_start
         self.end()
 
     def end(self):
         self.user_name = self.GUI.entry_player_name.get().strip()
-        append_scoreboard(self.user_name,
-                          self.wpm, datetime.now(),
+        append_scoreboard(user_name=self.user_name,
+                          wpm=self.wpm,
+                          date=datetime.now(),
                           # Time in seconds
-                          float(self.time_lasted))
+                          time_spent=float(self.time_lasted))
         self.GUI.end()
