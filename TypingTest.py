@@ -7,26 +7,24 @@ from TypingGUI import TypingGUI
 
 def append_scoreboard(user_name: str, wpm: int, date: datetime, time_spent: float):
     """Add a score to the scoreboard"""
-    json_scoreboard = None
 
     new_score = {
-        f"{date}":
-            {"username": user_name,
-             "words_per_minute": wpm,
-             "Seconds Played": f"{time_spent:.2f}"
-             }
+        "date_ID": f"{date}",
+        "username": user_name,
+        "words_per_minute": wpm,
+        "seconds_played": f"{time_spent:.2f}"
     }
 
     try:
         with open("scoreboard.json", 'r') as scoreboard:
             json_scoreboard = json.load(scoreboard)
-            json_scoreboard.update(new_score)
+            json_scoreboard["scores"].append(new_score)
         with open("scoreboard.json", "w") as scoreboard:
             json.dump(json_scoreboard, scoreboard, indent=4)
     except FileNotFoundError:
         # File doesn't exist, so create it!
         with open('scoreboard.json', 'w') as scoreboard:
-            json.dump(new_score, scoreboard, indent=4)
+            json.dump({"scores": [new_score]}, scoreboard, indent=4)
 
     print("Score added to scoreboard datafile")
 
@@ -52,7 +50,7 @@ class TypingTest:
         self.time_start = -1
         self.time_lasted = -1
 
-        self.timeout_seconds = 50  # TODO change this to 10 later
+        self.timeout_seconds = 10
 
     def get_more_words(self, number_of_words) -> list:
         more_words = []
@@ -91,14 +89,15 @@ class TypingTest:
                 # Reset countdown clock
                 timeout_counter = 0
 
-            # Check if more words are needed
-            if self.words_typed % self.words_generated_per_batch - self.word_batch_threshold == 0:
+            # Check if more words are needed after every word_batch_threshold words are typed
+            if self.words_typed % self.word_batch_threshold == 0:
                 self.GUI.add_words(self.get_more_words(self.words_generated_per_batch))
 
         self.time_lasted = current_time - self.time_start
         self.end()
 
     def end(self):
+        self.user_name = self.GUI.entry_player_name.get().strip()
         append_scoreboard(self.user_name,
                           self.wpm, datetime.now(),
                           # Time in seconds

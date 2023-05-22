@@ -1,7 +1,64 @@
 {
-    "2023-05-14 19:55:24.950063": {
-        "username": "John Smith",
-        "words_per_minute": 0,
-        "Seconds Played": "0.00"
-    }
+    "scores": [
+        {
+            "date_ID": "2023-05-22 08:55:54.361283",
+            "username": "John",
+            "words_per_minute": 50,
+            "seconds_played": "50.32"
+        },
+        {
+            "date_ID": "2023-05-22 08:55:54.362285",
+            "username": "Alex",
+            "words_per_minute": 76,
+            "seconds_played": "59.30"
+        },
+        {
+            "date_ID": "2023-05-22 08:55:54.368289",
+            "username": "Matt",
+            "words_per_minute": 27,
+            "seconds_played": "15.80"
+        },
+        {
+            "date_ID": "2023-05-22 08:55:54.373293",
+            "username": "Steven",
+            "words_per_minute": 92,
+            "seconds_played": "684.10"
+        },
+        {
+            "date_ID": "2023-05-22 08:55:54.379300",
+            "username": "Joey",
+            "words_per_minute": 14,
+            "seconds_played": "84.53"
+        },
+        {
+            "date_ID": "2023-05-22 08:56:25.034791",
+            "username": "John",
+            "words_per_minute": 50,
+            "seconds_played": "50.32"
+        },
+        {
+            "date_ID": "2023-05-22 08:56:25.035792",
+            "username": "Alex",
+            "words_per_minute": 76,
+            "seconds_played": "59.30"
+        },
+        {
+            "date_ID": "2023-05-22 08:56:25.040797",
+            "username": "Matt",
+            "words_per_minute": 27,
+            "seconds_played": "15.80"
+        },
+        {
+            "date_ID": "2023-05-22 08:56:25.044801",
+            "username": "Steven",
+            "words_per_minute": 92,
+            "seconds_played": "684.10"
+        },
+        {
+            "date_ID": "2023-05-22 08:56:25.048804",
+            "username": "Joey",
+            "words_per_minute": 14,
+            "seconds_played": "84.53"
+        }
+    ]
 }
