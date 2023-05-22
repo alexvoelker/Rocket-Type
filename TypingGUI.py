@@ -111,12 +111,18 @@ class TypingGUI:
                 word_labels.append(word_label)
                 word_num += 1
 
+            # Update 'words_typed' to make the word check in check_text_input() easier
+            self.words_typed -= 6
+
         else:
             for row in range(3):
                 for column in range(6):
                     word_label = Label(self.word_container, text=words[count], fg='blue')
                     word_label.grid(row=row, column=column)
                     self.word_labels.append(word_label)
+
+        # Set the foreground of the current word to black
+        self.word_list[0].config(fg="black")
 
     def display_wpm(self, wpm):
         """Set the value of a label field to be the wpm value"""
@@ -125,31 +131,37 @@ class TypingGUI:
 
     def check_text_input(self):
         if self.to_continue:
-            # While the game is running, collect user input
+            # Collect user input
             word = self.text_entry.get()
             if ' ' not in word:  # Check for spaces in the entry box
                 return
             # Check the self.text_entry for a new word (non-space characters followed by a space)
             if len(word.strip()) > 0:
+                # update 'new_word_typed' to send a message to the TypingTest logic engine
+                self.new_word_typed = True
                 self.words_typed += 1
+
                 if word == self.word_list[self.words_typed]:
                     self.words_correct.append(word)
-                    #     TODO modify the entry_word_prompt to reflect a new correct word
-
+                    # Modify the entry_word_prompt to reflect a new correct word
+                    self.word_list[self.words_typed].config(fg='green')
                 else:
-                    #     TODO modify the entry_word_prompt to reflect a new incorrect word
+                    # Modify the entry_word_prompt to reflect a new incorrect word
                     self.words_incorrect.append(word)
+                    self.word_list[self.words_typed].config(fg='red')
+
+                # Set the color of the new current word
+                self.word_list[self.words_typed + 1].config(fg='black')
 
                 # Clear the entry when the word is typed
                 self.text_entry.setvar("")
 
                 print(word)
 
-                # update self.new_word_typed to send a message to the TypingText logic engine
-                self.new_word_typed = True
 
-            # Whenever a full new word is entered, check if it was entered in correctly
-            # and append the input to either self.words_correct or self.words_incorrect
+
+            # TODO Whenever a full new word is entered, check if it was entered in correctly
+            # TODO ..and append the input to either self.words_correct or self.words_incorrect
 
             pass
 
