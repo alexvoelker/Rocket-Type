@@ -59,6 +59,54 @@
             "username": "Joey",
             "words_per_minute": 14,
             "seconds_played": "84.53"
+        },
+        {
+            "date_ID": "2023-05-27 17:11:24.991416",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "-1.00"
+        },
+        {
+            "date_ID": "2023-05-27 17:15:59.878505",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "0.90"
+        },
+        {
+            "date_ID": "2023-05-27 17:16:53.907932",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "8.52"
+        },
+        {
+            "date_ID": "2023-05-27 17:18:53.425304",
+            "username": "John 546456445",
+            "words_per_minute": 0,
+            "seconds_played": "0.02"
+        },
+        {
+            "date_ID": "2023-05-27 17:19:23.327286",
+            "username": "John 546456445",
+            "words_per_minute": 0,
+            "seconds_played": "0.02"
+        },
+        {
+            "date_ID": "2023-05-27 17:20:27.062201",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "1.10"
+        },
+        {
+            "date_ID": "2023-05-27 17:24:22.748107",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "-1.00"
+        },
+        {
+            "date_ID": "2023-05-27 17:25:01.947769",
+            "username": "John Smith",
+            "words_per_minute": 0,
+            "seconds_played": "0.39"
         }
     ]
 }
