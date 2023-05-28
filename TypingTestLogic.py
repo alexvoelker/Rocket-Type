@@ -43,7 +43,7 @@ class TypingTestLogic:
         self.words_to_type = self.get_words_from_wordlist(18)
         # When a user gets within a set number of words typed of the word_to_type list, more will be generated
         self.words_generated_per_batch = 6
-        self.word_batch_threshold = 6
+        self.word_batch_threshold = 12
 
         # Initialize the GUI
         self.time_start = -1
@@ -57,9 +57,9 @@ class TypingTestLogic:
             more_words.append(random.choice(self.word_list))
         return more_words
 
-    def calculate_wpm(self):
+    def calculate_wpm(self, incorrect_num: int):
         minutes_played = (time.time() - self.time_start) / 60
-        self.wpm = self.words_typed / minutes_played
+        self.wpm = (self.words_typed - incorrect_num) / minutes_played
         return self.wpm
 
     def end(self):

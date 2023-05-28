@@ -60,7 +60,6 @@ class TypingTest(TypingTestLogic):
 
         self.word_container = Frame(self.window, pady=25, padx=25)
         self.word_container.grid(column=2, row=3, pady=30)
-        self.word_list = []
         self.word_labels = []
 
         self.user_input_string = StringVar()
@@ -70,7 +69,7 @@ class TypingTest(TypingTestLogic):
         self.new_word_typed = False
 
         # TODO typing input and text checker
-        self.word_in_list = 0
+        self.word_count_in_list = 0
         self.words_correct = []
         self.words_incorrect = []
         self.to_continue = True
@@ -85,7 +84,6 @@ class TypingTest(TypingTestLogic):
         self.end_button.grid(row=4, column=3)
 
         # Game Loop and thread
-        self.has_lock = True
         capture_input = Button(self.window, text="capture user input",
                                command=threading.Thread(target=self.main_loop).start())
 
@@ -94,25 +92,23 @@ class TypingTest(TypingTestLogic):
     def display_wpm(self, wpm):
         """Set the value of a label field to be the wpm value"""
         self.displayed_wpm = wpm
-        self.label_player_wpm.config(text=f"Words Per Minute: {self.displayed_wpm}")
+        self.label_player_wpm.config(text=f"Words Per Minute: {self.displayed_wpm:.2f}")
 
     def add_words(self, words: list[str]):
         """Add words to the GUI display. NOTE: Only accepts word lists of length 18 or 6"""
-        if len(words) != 6 and len(words) != 18:
-            return
-
         count = 0
 
         if len(self.word_labels) > 0:
             for label in self.word_labels[:6]:
                 label.destroy()
-            word_labels = self.word_labels[6:]
+            self.word_labels = self.word_labels[6:]
+            self.words_to_type = self.words_to_type[6:]
 
             # If there are words in the word list,
             # shift the first two rows down
             for row in range(2):
                 for column in range(6):
-                    word_labels[count].grid(row=row, column=column)
+                    self.word_labels[count].grid(row=row, column=column)
                     count += 1
 
             # Then add the final row of new words
@@ -120,11 +116,9 @@ class TypingTest(TypingTestLogic):
             for column in range(6):
                 word_label = Label(self.word_container, text=words[word_num], fg='blue')
                 word_label.grid(row=3, column=column)
-                word_labels.append(word_label)
+                self.word_labels.append(word_label)
+                self.words_to_type.append(words[word_num])
                 word_num += 1
-
-            # Update 'word_in_list' to make the word check in check_text_input() easier
-            self.word_in_list -= 6
 
         else:
             for row in range(3):
@@ -132,9 +126,10 @@ class TypingTest(TypingTestLogic):
                     word_label = Label(self.word_container, text=words[count], fg='blue')
                     word_label.grid(row=row, column=column)
                     self.word_labels.append(word_label)
+                    count += 1
 
-        # Set the foreground of the current word to black
-        # self.word_list[0].config(fg="black")
+            # Set the foreground of the first word to black
+            self.word_labels[0].config(fg="black")
 
     def reset_new_word_typed(self):
         self.new_word_typed = False
@@ -145,41 +140,38 @@ class TypingTest(TypingTestLogic):
             word = self.text_entry.get()
             if ' ' not in word:  # Check for spaces in the entry box
                 return
+            word = word.strip()
             # Check the self.text_entry for a new word (non-space characters followed by a space)
-            if len(word.strip()) > 0:
+            if len(word) > 0:
                 # update 'new_word_typed' to send a message to the TypingTest logic engine
                 self.new_word_typed = True
-                self.word_in_list += 1
 
-                if word == self.word_list[self.word_in_list]:
+                if word.strip() == self.words_to_type[self.word_count_in_list]:
                     self.words_correct.append(word)
                     # Modify the entry_word_prompt to reflect a new correct word
-                    self.word_list[self.word_in_list].config(fg='green')
+                    self.word_labels[self.word_count_in_list].config(fg='green')
                 else:
                     # Modify the entry_word_prompt to reflect a new incorrect word
                     self.words_incorrect.append(word)
-                    self.word_list[self.word_in_list].config(fg='red')
+                    self.word_labels[self.word_count_in_list].config(fg='red')
 
                 # Set the color of the new current word
-                self.word_list[self.word_in_list + 1].config(fg='black')
+                self.word_count_in_list += 1
+                self.word_labels[self.word_count_in_list].config(fg='black')
 
                 # Clear the entry when the word is typed
                 self.text_entry.delete(0, END)
 
-            print(word)
+                # Check if more words are needed after every 'word_batch_threshold' words are typed
+                if self.words_typed > 6 and self.word_count_in_list % self.word_batch_threshold == 0:
+                    self.add_words(self.get_words_from_wordlist(self.words_generated_per_batch))
+                    self.word_count_in_list -= 6
 
-            # TODO Whenever a full new word is entered, check if it was entered in correctly
-            # TODO ..and append the input to either self.words_correct or self.words_incorrect
+            print(f"__ {word}")
 
     def main_loop(self):
         if not self.started:
             return
-
-        # Ensure that only one thread can run this loop at once
-        if not self.has_lock:
-            return
-        else:
-            has_lock = False
 
         self.add_words(self.words_to_type)
         self.entry_player_name.setvar(self.user_name)
@@ -204,23 +196,24 @@ class TypingTest(TypingTestLogic):
             if self.new_word_typed:
                 self.reset_new_word_typed()
                 self.words_typed += 1
-                self.wpm = self.calculate_wpm()
+                self.wpm = self.calculate_wpm(incorrect_num=len(self.words_incorrect))
                 self.display_wpm(self.wpm)
                 # Reset countdown clock
                 timeout_counter = 0
 
-            # Check if more words are needed after every 'word_batch_threshold' words are typed
-            if self.words_typed != 0 and self.words_typed % self.word_batch_threshold == 0:
-                self.add_words(self.get_words_from_wordlist(self.words_generated_per_batch))
+            self.time_lasted = current_time - self.time_start
 
-        self.time_lasted = current_time - self.time_start
-
-        self.end()
+        if self.to_continue:
+            # If the player timed out by waiting out the clock
+            self.time_lasted -= self.timeout_seconds
+            # Scoreboard still would need to be displayed
+            self.end()
 
     def end(self):
         """Display the scoreboard GUI above the game UI"""
         # Send the signal to end the game
         self.to_continue = False
+        super().end()
 
         # Make the text entry unalterable and cleared of text
         self.text_entry['state'] = DISABLED
@@ -233,9 +226,10 @@ class TypingTest(TypingTestLogic):
         self.scoreboard_display.grid(row=1, column=2)
 
         self.user_name = self.entry_player_name.get()
-        self.end()
 
     def reset_screen(self):
+        """FUNCTION NOT USED"""
+
         """Remove scoreboard fields from view and clear text inputs"""
         [label.destroy() for label in self.word_labels]
         self.word_labels.clear()
